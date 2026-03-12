@@ -21,7 +21,16 @@ var listFields string
 var listCmd = &cobra.Command{
 	Use:   "list <connection_id> <object>",
 	Short: "List objects",
-	Long:  "List objects from the Unified.to API.\nExample: unified list abc123 ats_candidate --limit 10 --job_id J123",
+	Long: `List objects from the Unified.to API.
+
+In addition to the flags below, you can pass any additional filtering
+parameters as flags and they will be sent as query parameters to the API.
+
+Examples:
+  unified list abc123 ats_candidate --limit 10
+  unified list abc123 ats_candidate --limit 10 --job_id J123 --type active
+  unified list abc123 ats_application --candidate_id C789
+  unified list abc123 crm_contact --company_id CO123 --sort updated_at --order desc`,
 	Args:  cobra.ExactArgs(2),
 	FParseErrWhitelist: cobra.FParseErrWhitelist{
 		UnknownFlags: true,
