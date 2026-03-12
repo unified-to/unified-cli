@@ -1,2 +1,4 @@
 unified
 dist/
+.claude/
+.env
