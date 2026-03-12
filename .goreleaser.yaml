@@ -1,0 +1,42 @@
+version: 2
+
+builds:
+  - main: .
+    binary: unified
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X github.com/unified-to/unified-cli/cmd.Version={{.Version}}
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: "checksums.txt"
+
+brews:
+  - name: unified
+    repository:
+      owner: unified-to
+      name: homebrew-cli
+    directory: Formula
+    homepage: "https://unified.to"
+    description: "CLI tool for the Unified.to API"
+    license: "MIT"
+    install: |
+      bin.install "unified"
+    test: |
+      assert_match "unified", shell_output("#{bin}/unified --help")
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
