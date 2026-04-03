@@ -38,7 +38,7 @@ var createCmd = &cobra.Command{
 			return err
 		}
 
-		client := api.NewClient(key, "")
+		client := api.NewClient(key, "", Version)
 		body, statusCode, err := client.Do("POST", category, connectionID, object, "", data, nil)
 		if err != nil {
 			return err

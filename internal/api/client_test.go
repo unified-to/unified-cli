@@ -9,6 +9,7 @@ import (
 )
 
 func TestClientList(t *testing.T) {
+	testVersion := "1.1.0"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			t.Errorf("expected GET, got %s", r.Method)
@@ -19,6 +20,9 @@ func TestClientList(t *testing.T) {
 		if r.Header.Get("Authorization") != "bearer test-key" {
 			t.Errorf("unexpected auth header: %s", r.Header.Get("Authorization"))
 		}
+		if r.Header.Get("User-Agent") != "UnifiedCLI/"+testVersion {
+			t.Errorf("unexpected user-agent header: %s", r.Header.Get("User-Agent"))
+		}
 		if r.URL.Query().Get("limit") != "10" {
 			t.Errorf("expected limit=10, got %s", r.URL.Query().Get("limit"))
 		}
@@ -27,7 +31,7 @@ func TestClientList(t *testing.T) {
 	}))
 	defer server.Close()
 
-	c := NewClient("test-key", server.URL)
+	c := NewClient("test-key", server.URL, testVersion)
 	body, statusCode, err := c.Do("GET", "ats", "conn123", "candidate", "", nil, map[string]string{"limit": "10"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -61,7 +65,7 @@ func TestClientCreate(t *testing.T) {
 	}))
 	defer server.Close()
 
-	c := NewClient("test-key", server.URL)
+	c := NewClient("test-key", server.URL, "test")
 	data := []byte(`{"name":"John"}`)
 	body, statusCode, err := c.Do("POST", "crm", "conn456", "contact", "", data, nil)
 	if err != nil {
@@ -84,7 +88,7 @@ func TestClientGetWithID(t *testing.T) {
 	}))
 	defer server.Close()
 
-	c := NewClient("test-key", server.URL)
+	c := NewClient("test-key", server.URL, "test")
 	body, _, err := c.Do("GET", "ats", "conn123", "candidate", "id789", nil, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -101,7 +105,7 @@ func TestClientHTTPError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	c := NewClient("test-key", server.URL)
+	c := NewClient("test-key", server.URL, "test")
 	body, statusCode, err := c.Do("GET", "ats", "conn123", "candidate", "bad", nil, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

@@ -7,7 +7,7 @@ import (
 )
 
 // Set by GoReleaser via ldflags
-var Version = "dev"
+var Version = "1.1.0"
 
 var versionCmd = &cobra.Command{
 	Use:   "version",

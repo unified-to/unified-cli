@@ -12,20 +12,22 @@ const DefaultBaseURL = "https://api.unified.to"
 
 // Client is an HTTP client for the Unified.to API.
 type Client struct {
-	apiKey  string
-	baseURL string
-	http    *http.Client
+	apiKey    string
+	baseURL   string
+	userAgent string
+	http      *http.Client
 }
 
 // NewClient creates a new API client. If baseURL is empty, uses the default.
-func NewClient(apiKey string, baseURL string) *Client {
+func NewClient(apiKey string, baseURL string, version string) *Client {
 	if baseURL == "" {
 		baseURL = DefaultBaseURL
 	}
 	return &Client{
-		apiKey:  apiKey,
-		baseURL: baseURL,
-		http:    &http.Client{},
+		apiKey:    apiKey,
+		baseURL:   baseURL,
+		userAgent: "UnifiedCLI/" + version,
+		http:      &http.Client{},
 	}
 }
 
@@ -64,6 +66,7 @@ func (c *Client) Do(method, category, connectionID, object, id string, body []by
 	}
 
 	req.Header.Set("Authorization", "bearer "+c.apiKey)
+	req.Header.Set("User-Agent", c.userAgent)
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
