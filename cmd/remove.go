@@ -32,7 +32,7 @@ var removeCmd = &cobra.Command{
 			return err
 		}
 
-		client := api.NewClient(key, "")
+		client := api.NewClient(key, "", Version)
 		body, statusCode, err := client.Do("DELETE", category, connectionID, object, removeID, nil, nil)
 		if err != nil {
 			return err

@@ -32,7 +32,7 @@ var getCmd = &cobra.Command{
 			return err
 		}
 
-		client := api.NewClient(key, "")
+		client := api.NewClient(key, "", Version)
 		body, statusCode, err := client.Do("GET", category, connectionID, object, getID, nil, nil)
 		if err != nil {
 			return err

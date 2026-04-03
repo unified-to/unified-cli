@@ -41,7 +41,7 @@ var updateCmd = &cobra.Command{
 			return err
 		}
 
-		client := api.NewClient(key, "")
+		client := api.NewClient(key, "", Version)
 		body, statusCode, err := client.Do("PATCH", category, connectionID, object, updateID, data, nil)
 		if err != nil {
 			return err

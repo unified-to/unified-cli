@@ -77,7 +77,7 @@ Examples:
 			params[k] = v
 		}
 
-		client := api.NewClient(key, "")
+		client := api.NewClient(key, "", Version)
 		body, statusCode, err := client.Do("GET", category, connectionID, object, "", nil, params)
 		if err != nil {
 			return err
