@@ -6,17 +6,18 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/unified-to/unified-cli/internal/api"
-	"github.com/unified-to/unified-cli/internal/parser"
+	"github.com/unified-to/unified-cli/internal/catalog"
 )
 
 var updateID string
 var updateData string
 
 var updateCmd = &cobra.Command{
-	Use:   "update <connection_id> <object>",
-	Short: "Update an existing object (partial update via PATCH)",
-	Long:  "Update an existing object via the Unified.to API using PATCH.\nExample: unified update abc123 crm_contact --id ID456 -d '{\"name\":\"Jane\"}'",
-	Args:  cobra.ExactArgs(2),
+	Use:               "update <connection_id> <object>",
+	Short:             "Update an existing object (partial update via PATCH)",
+	Long:              "Update an existing object via the Unified.to API using PATCH.\nExample: unified update abc123 crm_contact --id ID456 -d '{\"name\":\"Jane\"}'",
+	Args:              cobra.ExactArgs(2),
+	ValidArgsFunction: completeObjects(catalog.MethodUpdate),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		key, err := getAPIKey()
 		if err != nil {
@@ -36,13 +37,13 @@ var updateCmd = &cobra.Command{
 		}
 
 		connectionID := args[0]
-		category, object, err := parser.SplitObject(args[1])
+		obj, err := resolveObject(args[1], catalog.MethodUpdate)
 		if err != nil {
 			return err
 		}
 
 		client := api.NewClient(key, "", Version)
-		body, statusCode, err := client.Do("PATCH", category, connectionID, object, updateID, data, nil)
+		body, statusCode, err := client.Do("PATCH", obj.Category, connectionID, obj.Resource, updateID, data, nil)
 		if err != nil {
 			return err
 		}

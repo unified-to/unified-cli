@@ -14,6 +14,9 @@ func TestSplitObject(t *testing.T) {
 		{"hris_employee", "hris", "employee", false},
 		{"commerce_item", "commerce", "item", false},
 		{"ats_application", "ats", "application", false},
+		{"accounting_creditmemo", "accounting", "creditmemo", false},
+		// No Unified object has a second underscore today, but the split has to
+		// be well defined if one ever does.
 		{"accounting_credit_memo", "accounting", "credit_memo", false},
 		{"", "", "", true},
 		{"nocategory", "", "", true},

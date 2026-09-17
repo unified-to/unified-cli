@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/unified-to/unified-cli/internal/api"
-	"github.com/unified-to/unified-cli/internal/parser"
+	"github.com/unified-to/unified-cli/internal/catalog"
 )
 
 var listQuery string
@@ -26,12 +26,15 @@ var listCmd = &cobra.Command{
 In addition to the flags below, you can pass any additional filtering
 parameters as flags and they will be sent as query parameters to the API.
 
+Filters and their accepted values are listed by "unified objects <object>".
+
 Examples:
   unified list abc123 ats_candidate --limit 10
-  unified list abc123 ats_candidate --limit 10 --job_id J123 --type active
+  unified list abc123 ats_document --limit 10 --job_id J123 --type RESUME
   unified list abc123 ats_application --candidate_id C789
   unified list abc123 crm_contact --company_id CO123 --sort updated_at --order desc`,
-	Args:  cobra.ExactArgs(2),
+	Args:              cobra.ExactArgs(2),
+	ValidArgsFunction: completeObjects(catalog.MethodList),
 	FParseErrWhitelist: cobra.FParseErrWhitelist{
 		UnknownFlags: true,
 	},
@@ -42,7 +45,7 @@ Examples:
 		}
 
 		connectionID := args[0]
-		category, object, err := parser.SplitObject(args[1])
+		obj, err := resolveObject(args[1], catalog.MethodList)
 		if err != nil {
 			return err
 		}
@@ -77,8 +80,14 @@ Examples:
 			params[k] = v
 		}
 
+		if !noValidate {
+			if err := validateListParams(obj, params); err != nil {
+				return err
+			}
+		}
+
 		client := api.NewClient(key, "", Version)
-		body, statusCode, err := client.Do("GET", category, connectionID, object, "", nil, params)
+		body, statusCode, err := client.Do("GET", obj.Category, connectionID, obj.Resource, "", nil, params)
 		if err != nil {
 			return err
 		}
@@ -101,10 +110,11 @@ func parseUnknownFlags(args []string) map[string]string {
 		"--limit": true, "-l": true,
 		"--offset": true, "-o": true,
 		"--updated-gte": true,
-		"--sort": true, "-s": true,
-		"--order": true,
+		"--sort":        true, "-s": true,
+		"--order":  true,
 		"--fields": true, "-f": true,
-		"--help": true, "-h": true,
+		"--no-validate": true,
+		"--help":        true, "-h": true,
 	}
 
 	extra := map[string]string{}

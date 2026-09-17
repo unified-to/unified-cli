@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const DefaultBaseURL = "https://api.unified.to"
@@ -31,13 +32,25 @@ func NewClient(apiKey string, baseURL string, version string) *Client {
 	}
 }
 
-// Do performs an HTTP request against the Unified.to API.
+// Do performs an HTTP request against a Unified.to object endpoint,
+// /{category}/{connection_id}/{object}[/{id}].
 // Returns the response body, status code, and any error.
 func (c *Client) Do(method, category, connectionID, object, id string, body []byte, params map[string]string) ([]byte, int, error) {
 	// Build URL path
 	path := fmt.Sprintf("/%s/%s/%s", category, connectionID, object)
 	if id != "" {
 		path = fmt.Sprintf("%s/%s", path, id)
+	}
+
+	return c.DoPath(method, path, body, params)
+}
+
+// DoPath performs an HTTP request against an arbitrary path on the Unified.to
+// API. The path is used as-is, so any escaping is the caller's responsibility.
+// Returns the response body, status code, and any error.
+func (c *Client) DoPath(method, path string, body []byte, params map[string]string) ([]byte, int, error) {
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
 	}
 
 	u, err := url.Parse(c.baseURL + path)
