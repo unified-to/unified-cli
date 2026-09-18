@@ -6,16 +6,17 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/unified-to/unified-cli/internal/api"
-	"github.com/unified-to/unified-cli/internal/parser"
+	"github.com/unified-to/unified-cli/internal/catalog"
 )
 
 var getID string
 
 var getCmd = &cobra.Command{
-	Use:   "get <connection_id> <object>",
-	Short: "Get a single object by ID",
-	Long:  "Get a single object from the Unified.to API.\nExample: unified get abc123 ats_candidate --id ID456",
-	Args:  cobra.ExactArgs(2),
+	Use:               "get <connection_id> <object>",
+	Short:             "Get a single object by ID",
+	Long:              "Get a single object from the Unified.to API.\nExample: unified get abc123 ats_candidate --id ID456",
+	Args:              cobra.ExactArgs(2),
+	ValidArgsFunction: completeObjects(catalog.MethodGet),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		key, err := getAPIKey()
 		if err != nil {
@@ -27,13 +28,13 @@ var getCmd = &cobra.Command{
 		}
 
 		connectionID := args[0]
-		category, object, err := parser.SplitObject(args[1])
+		obj, err := resolveObject(args[1], catalog.MethodGet)
 		if err != nil {
 			return err
 		}
 
 		client := api.NewClient(key, "", Version)
-		body, statusCode, err := client.Do("GET", category, connectionID, object, getID, nil, nil)
+		body, statusCode, err := client.Do("GET", obj.Category, connectionID, obj.Resource, getID, nil, nil)
 		if err != nil {
 			return err
 		}

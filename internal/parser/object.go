@@ -5,9 +5,12 @@ import (
 	"strings"
 )
 
-// SplitObject splits an object name like "ats_candidate" into category and object.
-// Splits on the first underscore only, so "accounting_credit_memo" becomes
-// category="accounting", object="credit_memo".
+// SplitObject splits an object name like "ats_candidate" into category and
+// object. It splits on the first underscore only, so a name with more than one
+// underscore keeps the rest in the object segment.
+//
+// Prefer the catalog package, which knows the objects the API actually exposes.
+// This is the fallback for names the catalog does not have.
 func SplitObject(input string) (category string, object string, err error) {
 	if input == "" {
 		return "", "", fmt.Errorf("object name cannot be empty")

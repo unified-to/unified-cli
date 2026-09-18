@@ -7,16 +7,17 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/unified-to/unified-cli/internal/api"
-	"github.com/unified-to/unified-cli/internal/parser"
+	"github.com/unified-to/unified-cli/internal/catalog"
 )
 
 var createData string
 
 var createCmd = &cobra.Command{
-	Use:   "create <connection_id> <object>",
-	Short: "Create a new object",
-	Long:  "Create a new object via the Unified.to API.\nExample: unified create abc123 crm_contact -d '{\"name\":\"John\"}'",
-	Args:  cobra.ExactArgs(2),
+	Use:               "create <connection_id> <object>",
+	Short:             "Create a new object",
+	Long:              "Create a new object via the Unified.to API.\nExample: unified create abc123 crm_contact -d '{\"name\":\"John\"}'",
+	Args:              cobra.ExactArgs(2),
+	ValidArgsFunction: completeObjects(catalog.MethodCreate),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		key, err := getAPIKey()
 		if err != nil {
@@ -33,13 +34,13 @@ var createCmd = &cobra.Command{
 		}
 
 		connectionID := args[0]
-		category, object, err := parser.SplitObject(args[1])
+		obj, err := resolveObject(args[1], catalog.MethodCreate)
 		if err != nil {
 			return err
 		}
 
 		client := api.NewClient(key, "", Version)
-		body, statusCode, err := client.Do("POST", category, connectionID, object, "", data, nil)
+		body, statusCode, err := client.Do("POST", obj.Category, connectionID, obj.Resource, "", data, nil)
 		if err != nil {
 			return err
 		}

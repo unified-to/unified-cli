@@ -117,3 +117,53 @@ func TestClientHTTPError(t *testing.T) {
 		t.Errorf("unexpected body: %s", body)
 	}
 }
+
+func TestClientDoPath(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Errorf("expected POST, got %s", r.Method)
+		}
+		if r.URL.Path != "/passthrough/conn123/v1/contacts" {
+			t.Errorf("unexpected path: %s", r.URL.Path)
+		}
+		if r.URL.RawQuery != "updated_since=2026-01-01" {
+			t.Errorf("unexpected query: %s", r.URL.RawQuery)
+		}
+		if r.Header.Get("Authorization") != "bearer test-key" {
+			t.Errorf("unexpected auth header: %s", r.Header.Get("Authorization"))
+		}
+		reqBody, _ := io.ReadAll(r.Body)
+		if strings.TrimSpace(string(reqBody)) != `{"name":"John"}` {
+			t.Errorf("unexpected body: %s", reqBody)
+		}
+		w.Write([]byte(`{"ok":true}`))
+	}))
+	defer server.Close()
+
+	c := NewClient("test-key", server.URL, "test")
+	body, statusCode, err := c.DoPath("POST", "/passthrough/conn123/v1/contacts?updated_since=2026-01-01", []byte(`{"name":"John"}`), nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if statusCode != 200 {
+		t.Errorf("expected status 200, got %d", statusCode)
+	}
+	if strings.TrimSpace(string(body)) != `{"ok":true}` {
+		t.Errorf("unexpected body: %s", body)
+	}
+}
+
+func TestClientDoPathAddsLeadingSlash(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/passthrough/conn123/v1/contacts" {
+			t.Errorf("unexpected path: %s", r.URL.Path)
+		}
+		w.Write([]byte(`{}`))
+	}))
+	defer server.Close()
+
+	c := NewClient("test-key", server.URL, "test")
+	if _, _, err := c.DoPath("GET", "passthrough/conn123/v1/contacts", nil, nil); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
