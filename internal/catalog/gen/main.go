@@ -82,7 +82,15 @@ func generate(apiDir string) ([]byte, error) {
 		objects[s.Name] = s
 	}
 
-	if err := reconcile(objectTypes, objects); err != nil {
+	deprecated, err := readDeprecated(apiDir)
+	if err != nil {
+		return nil, err
+	}
+	for name := range deprecated {
+		delete(objects, name)
+	}
+
+	if err := reconcile(objectTypes, objects, deprecated); err != nil {
 		return nil, err
 	}
 
@@ -103,11 +111,14 @@ var skipObjectTypes = map[string]string{
 	"passthrough": "handled by the passthrough command",
 }
 
-func reconcile(objectTypes []string, objects map[string]object) error {
+func reconcile(objectTypes []string, objects map[string]object, deprecated map[string]bool) error {
 	known := map[string]bool{}
 	var problems []string
 	for _, name := range objectTypes {
 		known[name] = true
+		if deprecated[name] {
+			continue
+		}
 		if _, skipped := skipObjectTypes[name]; skipped {
 			if _, found := objects[name]; found {
 				problems = append(problems, fmt.Sprintf("%s is in skipObjectTypes but was also discovered as a route", name))
@@ -186,6 +197,47 @@ func readEnums(apiDir string) (map[string][]string, error) {
 		}
 	}
 	return enums, nil
+}
+
+// deprecatedRe matches a `@deprecated` comment followed, on the next line, by
+// the object it marks: a `<category>_<resource>:` key (the per-object maps in
+// the route files), a quoted ObjectType entry, or a setRoute() call.
+var deprecatedRe = regexp.MustCompile(`@deprecated\b[^\n]*\n\s*(?:([a-z0-9]+_[a-z0-9]+)\s*:|'([a-z0-9]+_[a-z0-9]+)'\s*,|setRoute\s*(?:<[^>]*>)?\s*\(\s*server\s*,\s*\{\s*object\s*:\s*'([^']+)')`)
+
+// readDeprecated collects the objects unified-api marks `@deprecated` in its
+// route files or in src/models/Unified.ts. They are still served, but they are
+// left out of the catalog so the CLI does not offer them; `--no-validate`
+// still reaches them. Comments are read here, so this works on raw source.
+func readDeprecated(apiDir string) (map[string]bool, error) {
+	files, err := tsFiles(filepath.Join(apiDir, "src", "server", "routes"))
+	if err != nil {
+		return nil, err
+	}
+	files = append(files, filepath.Join(apiDir, "src", "models", "Unified.ts"))
+
+	deprecated := map[string]bool{}
+	for _, path := range files {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil, err
+		}
+		for _, name := range deprecatedNames(string(data)) {
+			deprecated[name] = true
+		}
+	}
+	return deprecated, nil
+}
+
+func deprecatedNames(src string) []string {
+	var out []string
+	for _, m := range deprecatedRe.FindAllStringSubmatch(src, -1) {
+		for _, name := range m[1:] {
+			if name != "" {
+				out = append(out, name)
+			}
+		}
+	}
+	return out
 }
 
 func readSetRoutes(apiDir string, enums map[string][]string) (map[string]object, error) {

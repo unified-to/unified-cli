@@ -41,6 +41,14 @@ The API registers object routes in two ways, and the generator reads both:
 `/{category}/{connection_id}/{resource}`, so it has no catalog entry. The
 `unified passthrough` command covers it instead.
 
+Objects that unified-api marks `@deprecated` are left out of the catalog, even
+though the API still serves them, so the CLI does not offer them. The generator
+reads the marker from the raw route files and `src/models/Unified.ts` (before
+comments are stripped): a `@deprecated` comment directly above an object's key
+in a per-object map, its quoted `ObjectType` entry, or its `setRoute()` call.
+`accounting_order` is dropped this way, in favour of `accounting_purchaseorder`
+and `accounting_salesorder`. `--no-validate` still reaches a dropped object.
+
 Finally the generator reconciles what it found against `ObjectType` in
 `src/models/Unified.ts` and fails if either side has an object the other does
 not. An object added to the API therefore shows up as a generator failure rather
