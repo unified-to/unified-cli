@@ -200,18 +200,6 @@ var Objects = []Object{
 		},
 	},
 	{
-		Name:               "accounting_order",
-		Category:           "accounting",
-		Resource:           "order",
-		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
-		StandardListParams: true,
-		Filters: []Filter{
-			{Name: "contact_id"},
-			{Name: "type", Values: []string{"PURCHASE", "SALES"}},
-			{Name: "org_id"},
-		},
-	},
-	{
 		Name:               "accounting_organization",
 		Category:           "accounting",
 		Resource:           "organization",

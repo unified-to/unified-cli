@@ -122,17 +122,55 @@ func TestParseSetRouteErrors(t *testing.T) {
 func TestReconcile(t *testing.T) {
 	objects := map[string]object{"crm_contact": {Name: "crm_contact"}}
 
-	if err := reconcile([]string{"crm_contact", "passthrough"}, objects); err != nil {
+	if err := reconcile([]string{"crm_contact", "passthrough"}, objects, nil); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 
-	err := reconcile([]string{"crm_contact", "crm_brandnew"}, objects)
+	err := reconcile([]string{"crm_contact", "crm_brandnew"}, objects, nil)
 	if err == nil || !strings.Contains(err.Error(), "crm_brandnew") {
 		t.Errorf("expected the missing object to be reported, got %v", err)
 	}
 
-	err = reconcile([]string{}, objects)
+	err = reconcile([]string{}, objects, nil)
 	if err == nil || !strings.Contains(err.Error(), "not in ObjectType") {
 		t.Errorf("expected the stray object to be reported, got %v", err)
+	}
+}
+
+func TestReconcileDeprecated(t *testing.T) {
+	objects := map[string]object{"crm_contact": {Name: "crm_contact"}}
+	deprecated := map[string]bool{"crm_old": true}
+	if err := reconcile([]string{"crm_contact", "crm_old"}, objects, deprecated); err != nil {
+		t.Errorf("a deprecated ObjectType entry should not need a catalog entry: %v", err)
+	}
+}
+
+func TestDeprecatedNames(t *testing.T) {
+	src := `
+    const schemas = {
+        accounting_invoice: { fn: null },
+
+        // @deprecated
+        accounting_order: {
+            fn: null,
+        },
+    };
+    export const ObjectType = [
+        /** @deprecated use crm_lead */
+        'crm_prospect',
+        'crm_contact',
+    ] as const;
+    // @deprecated
+    setRoute<IFoo>(server, {
+        object: 'ats_legacy',
+        methods: ['L'],
+    });
+    // @deprecated use limit
+    const offset = 0;
+`
+	got := deprecatedNames(src)
+	want := []string{"accounting_order", "crm_prospect", "ats_legacy"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v, want %v", got, want)
 	}
 }
