@@ -69,9 +69,9 @@ func TestLookup(t *testing.T) {
 }
 
 func TestReadOnlyObject(t *testing.T) {
-	obj := Lookup("ats_applicationstatus")
+	obj := Lookup("calendar_busy")
 	if obj == nil {
-		t.Fatal("expected ats_applicationstatus in the catalog")
+		t.Fatal("expected calendar_busy in the catalog")
 	}
 	if !obj.Supports(MethodList) {
 		t.Error("expected list support")

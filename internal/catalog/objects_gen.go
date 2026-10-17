@@ -154,7 +154,24 @@ var Objects = []Object{
 			{Name: "category_id"},
 			{Name: "group_id"},
 			{Name: "org_id"},
-			{Name: "status"},
+			{Name: "status", Values: []string{"DRAFT", "SUBMITTED", "PENDING", "APPROVED", "REJECTED", "PAID"}},
+			{Name: "type", Values: []string{"USER", "COMPANY"}},
+		},
+	},
+	{
+		Name:               "accounting_expensereport",
+		Category:           "accounting",
+		Resource:           "expensereport",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "user_id"},
+			{Name: "approver_user_id"},
+			{Name: "start_gte"},
+			{Name: "end_lt"},
+			{Name: "category_id"},
+			{Name: "org_id"},
+			{Name: "status", Values: []string{"DRAFT", "SUBMITTED", "PENDING", "APPROVED", "REJECTED", "PAID"}},
 		},
 	},
 	{
@@ -250,6 +267,17 @@ var Objects = []Object{
 		},
 	},
 	{
+		Name:               "accounting_purchasereceipt",
+		Category:           "accounting",
+		Resource:           "purchasereceipt",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "contact_id"},
+			{Name: "org_id"},
+		},
+	},
+	{
 		Name:               "accounting_quote",
 		Category:           "accounting",
 		Resource:           "quote",
@@ -273,6 +301,19 @@ var Objects = []Object{
 		Filters: []Filter{
 			{Name: "contact_id"},
 			{Name: "org_id"},
+		},
+	},
+	{
+		Name:               "accounting_salesreceipt",
+		Category:           "accounting",
+		Resource:           "salesreceipt",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "contact_id"},
+			{Name: "org_id"},
+			{Name: "start_gte"},
+			{Name: "end_lt"},
 		},
 	},
 	{
@@ -563,7 +604,7 @@ var Objects = []Object{
 		Name:               "ats_applicationstatus",
 		Category:           "ats",
 		Resource:           "applicationstatus",
-		Methods:            []Method{MethodList},
+		Methods:            []Method{MethodList, MethodGet},
 		StandardListParams: true,
 		Filters: []Filter{
 			{Name: "job_id"},
@@ -577,6 +618,7 @@ var Objects = []Object{
 		StandardListParams: true,
 		Filters: []Filter{
 			{Name: "company_id"},
+			{Name: "job_id"},
 		},
 	},
 	{
@@ -607,6 +649,8 @@ var Objects = []Object{
 		StandardListParams: true,
 		Filters: []Filter{
 			{Name: "application_id"},
+			{Name: "candidate_id"},
+			{Name: "job_id"},
 		},
 	},
 	{
@@ -665,6 +709,7 @@ var Objects = []Object{
 			{Name: "start_gte"},
 			{Name: "end_lt"},
 			{Name: "expand"},
+			{Name: "matter_id"},
 		},
 	},
 	{
@@ -903,6 +948,131 @@ var Objects = []Object{
 		StandardListParams: true,
 	},
 	{
+		Name:               "compute_deployment",
+		Category:           "compute",
+		Resource:           "deployment",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "service_id"},
+			{Name: "status", Values: []string{"QUEUED", "BUILDING", "DEPLOYING", "LIVE", "FAILED", "CANCELED", "SUPERSEDED", "OTHER"}},
+		},
+	},
+	{
+		Name:               "compute_domain",
+		Category:           "compute",
+		Resource:           "domain",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "service_id"},
+		},
+	},
+	{
+		Name:               "compute_envvar",
+		Category:           "compute",
+		Resource:           "envvar",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "service_id"},
+		},
+	},
+	{
+		Name:               "compute_gputype",
+		Category:           "compute",
+		Resource:           "gputype",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "region_id"},
+		},
+	},
+	{
+		Name:               "compute_instance",
+		Category:           "compute",
+		Resource:           "instance",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "status", Values: []string{"PROVISIONING", "STARTING", "RUNNING", "STOPPING", "STOPPED", "PAUSING", "PAUSED", "RESUMING", "RESTARTING", "TERMINATING", "TERMINATED", "PREEMPTED", "ERROR", "OTHER"}},
+			{Name: "type", Values: []string{"CONTAINER", "VM", "BAREMETAL", "SANDBOX", "OTHER"}},
+			{Name: "region_id"},
+			{Name: "template_id"},
+			{Name: "service_id"},
+		},
+	},
+	{
+		Name:               "compute_key",
+		Category:           "compute",
+		Resource:           "key",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "instance_id"},
+			{Name: "type", Values: []string{"SSH", "REGISTRY", "SECRET", "OTHER"}},
+		},
+	},
+	{
+		Name:               "compute_region",
+		Category:           "compute",
+		Resource:           "region",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+	},
+	{
+		Name:               "compute_service",
+		Category:           "compute",
+		Resource:           "service",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "status", Values: []string{"CREATING", "DEPLOYING", "LIVE", "SUSPENDED", "FAILED", "OTHER"}},
+			{Name: "type", Values: []string{"WEB", "WORKER", "CRON", "STATIC", "PRIVATE", "OTHER"}},
+			{Name: "region_id"},
+		},
+	},
+	{
+		Name:               "compute_snapshot",
+		Category:           "compute",
+		Resource:           "snapshot",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "instance_id"},
+		},
+	},
+	{
+		Name:               "compute_template",
+		Category:           "compute",
+		Resource:           "template",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+	},
+	{
+		Name:               "compute_usage",
+		Category:           "compute",
+		Resource:           "usage",
+		Methods:            []Method{MethodList},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "instance_id"},
+			{Name: "start_gte"},
+			{Name: "end_lt"},
+		},
+	},
+	{
+		Name:               "compute_volume",
+		Category:           "compute",
+		Resource:           "volume",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "region_id"},
+			{Name: "instance_id"},
+		},
+	},
+	{
 		Name:               "crm_company",
 		Category:           "crm",
 		Resource:           "company",
@@ -1060,6 +1230,13 @@ var Objects = []Object{
 		},
 	},
 	{
+		Name:               "genai_agent",
+		Category:           "genai",
+		Resource:           "agent",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+	},
+	{
 		Name:               "genai_embedding",
 		Category:           "genai",
 		Resource:           "embedding",
@@ -1074,11 +1251,152 @@ var Objects = []Object{
 		StandardListParams: true,
 	},
 	{
+		Name:               "genai_organization",
+		Category:           "genai",
+		Resource:           "organization",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+	},
+	{
 		Name:               "genai_prompt",
 		Category:           "genai",
 		Resource:           "prompt",
 		Methods:            []Method{MethodCreate},
 		StandardListParams: true,
+	},
+	{
+		Name:               "genai_skill",
+		Category:           "genai",
+		Resource:           "skill",
+		Methods:            []Method{MethodList, MethodGet, MethodRemove},
+		StandardListParams: true,
+	},
+	{
+		Name:               "genai_task",
+		Category:           "genai",
+		Resource:           "task",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "status", Values: []string{"PENDING", "RUNNING", "BLOCKED", "COMPLETED", "FAILED", "CANCELLED", "EXPIRED", "OTHER"}},
+			{Name: "agent_id"},
+		},
+	},
+	{
+		Name:               "healthcare_allergy",
+		Category:           "healthcare",
+		Resource:           "allergy",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "patient_id"},
+		},
+	},
+	{
+		Name:               "healthcare_appointment",
+		Category:           "healthcare",
+		Resource:           "appointment",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "patient_id"},
+			{Name: "practitioner_id"},
+			{Name: "location_id"},
+			{Name: "status", Values: []string{"PROPOSED", "PENDING", "BOOKED", "ARRIVED", "CHECKED_IN", "FULFILLED", "CANCELLED", "NOSHOW", "WAITLIST", "ENTERED_IN_ERROR", "OTHER"}},
+			{Name: "start_gte"},
+			{Name: "end_lt"},
+		},
+	},
+	{
+		Name:               "healthcare_condition",
+		Category:           "healthcare",
+		Resource:           "condition",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "patient_id"},
+		},
+	},
+	{
+		Name:               "healthcare_encounter",
+		Category:           "healthcare",
+		Resource:           "encounter",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "patient_id"},
+		},
+	},
+	{
+		Name:               "healthcare_immunization",
+		Category:           "healthcare",
+		Resource:           "immunization",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "patient_id"},
+		},
+	},
+	{
+		Name:               "healthcare_location",
+		Category:           "healthcare",
+		Resource:           "location",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "parent_id"},
+		},
+	},
+	{
+		Name:               "healthcare_medication",
+		Category:           "healthcare",
+		Resource:           "medication",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "patient_id"},
+		},
+	},
+	{
+		Name:               "healthcare_observation",
+		Category:           "healthcare",
+		Resource:           "observation",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "patient_id"},
+			{Name: "type", Values: []string{"LABORATORY", "VITAL_SIGNS", "SOCIAL_HISTORY", "IMAGING", "SURVEY", "EXAM", "PROCEDURE", "THERAPY", "ACTIVITY", "OTHER"}},
+		},
+	},
+	{
+		Name:               "healthcare_patient",
+		Category:           "healthcare",
+		Resource:           "patient",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate},
+		StandardListParams: true,
+	},
+	{
+		Name:               "healthcare_practitioner",
+		Category:           "healthcare",
+		Resource:           "practitioner",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "location_id"},
+		},
+	},
+	{
+		Name:               "healthcare_slot",
+		Category:           "healthcare",
+		Resource:           "slot",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "practitioner_id"},
+			{Name: "location_id"},
+			{Name: "start_gte"},
+			{Name: "end_lt"},
+		},
 	},
 	{
 		Name:               "hris_attendance",
@@ -1145,6 +1463,8 @@ var Objects = []Object{
 		StandardListParams: true,
 		Filters: []Filter{
 			{Name: "user_id"},
+			{Name: "group_id"},
+			{Name: "email"},
 		},
 	},
 	{
@@ -1160,6 +1480,18 @@ var Objects = []Object{
 		},
 	},
 	{
+		Name:               "hris_earning",
+		Category:           "hris",
+		Resource:           "earning",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "user_id"},
+			{Name: "company_id"},
+			{Name: "status", Values: []string{"PENDING", "ACTIVE", "PROCESSED", "ENDED", "CANCELLED", "FAILED"}},
+		},
+	},
+	{
 		Name:               "hris_employee",
 		Category:           "hris",
 		Resource:           "employee",
@@ -1169,6 +1501,7 @@ var Objects = []Object{
 			{Name: "company_id"},
 			{Name: "group_id"},
 			{Name: "location_id"},
+			{Name: "job_id"},
 		},
 	},
 	{
@@ -1183,6 +1516,19 @@ var Objects = []Object{
 		},
 	},
 	{
+		Name:               "hris_job",
+		Category:           "hris",
+		Resource:           "job",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "company_id"},
+			{Name: "group_id"},
+			{Name: "location_id"},
+			{Name: "user_id"},
+		},
+	},
+	{
 		Name:               "hris_location",
 		Category:           "hris",
 		Resource:           "location",
@@ -1191,6 +1537,32 @@ var Objects = []Object{
 		Filters: []Filter{
 			{Name: "company_id"},
 			{Name: "parent_id"},
+		},
+	},
+	{
+		Name:               "hris_paycode",
+		Category:           "hris",
+		Resource:           "paycode",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "company_id"},
+			{Name: "type", Values: []string{"EARNING", "DEDUCTION", "TAX", "CONTRIBUTION", "REIMBURSEMENT"}},
+		},
+	},
+	{
+		Name:               "hris_payroll",
+		Category:           "hris",
+		Resource:           "payroll",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "user_id"},
+			{Name: "company_id"},
+			{Name: "group_id"},
+			{Name: "type", Values: []string{"REGULAR", "OFF_CYCLE", "BONUS", "CORRECTION", "TERMINATION", "CONTRACTOR"}},
+			{Name: "start_gte"},
+			{Name: "end_lt"},
 		},
 	},
 	{
@@ -1277,6 +1649,49 @@ var Objects = []Object{
 		StandardListParams: true,
 		Filters: []Filter{
 			{Name: "parent_id"},
+		},
+	},
+	{
+		Name:               "legal_expense",
+		Category:           "legal",
+		Resource:           "expense",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "matter_id"},
+			{Name: "user_id"},
+			{Name: "type", Values: []string{"HARD_COST", "SOFT_COST", "OTHER"}},
+		},
+	},
+	{
+		Name:               "legal_matter",
+		Category:           "legal",
+		Resource:           "matter",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "user_id"},
+			{Name: "contact_id"},
+			{Name: "company_id"},
+			{Name: "practicearea_id"},
+		},
+	},
+	{
+		Name:               "legal_practicearea",
+		Category:           "legal",
+		Resource:           "practicearea",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+	},
+	{
+		Name:               "legal_timeentry",
+		Category:           "legal",
+		Resource:           "timeentry",
+		Methods:            []Method{MethodList, MethodGet, MethodCreate, MethodUpdate, MethodRemove},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "matter_id"},
+			{Name: "user_id"},
 		},
 	},
 	{
@@ -1889,6 +2304,26 @@ var Objects = []Object{
 			{Name: "end_lt"},
 			{Name: "contact_id"},
 		},
+	},
+	{
+		Name:               "uc_scorecard",
+		Category:           "uc",
+		Resource:           "scorecard",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
+		Filters: []Filter{
+			{Name: "user_id"},
+			{Name: "call_id"},
+			{Name: "start_gte"},
+			{Name: "end_lt"},
+		},
+	},
+	{
+		Name:               "uc_scorecardtemplate",
+		Category:           "uc",
+		Resource:           "scorecardtemplate",
+		Methods:            []Method{MethodList, MethodGet},
+		StandardListParams: true,
 	},
 	{
 		Name:               "verification_package",
